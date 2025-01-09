@@ -25,12 +25,12 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1a365d",
+          DEFAULT: "#153624",
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#fbbf24",
-          foreground: "#1a365d",
+          DEFAULT: "#c2b067",
+          foreground: "#153624",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -52,6 +52,9 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      fontFamily: {
+        khand: ['Khand', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",

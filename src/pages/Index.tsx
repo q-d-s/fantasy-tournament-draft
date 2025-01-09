@@ -35,21 +35,22 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold text-primary mb-8">Tournament Fantasy Draft</h1>
+        <h1 className="text-4xl font-khand text-primary mb-8">Tournament Draft League</h1>
+        <p className="text-lg text-gray-600 mb-8 font-khand">Pioneers of Fantasy Drafts</p>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {futureTournaments.map((tournament) => (
             <Link
               key={tournament.id}
               to={`/leagues/create?tournament=${tournament.id}`}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-secondary/20 hover:border-secondary"
             >
-              <h2 className="text-xl font-semibold text-primary mb-2">{tournament.name}</h2>
-              <p className="text-gray-600 mb-4">
+              <h2 className="text-2xl font-khand text-primary mb-2">{tournament.name}</h2>
+              <p className="text-gray-600 mb-4 font-khand">
                 {new Date(tournament.startDate).toLocaleDateString()} -{" "}
                 {new Date(tournament.endDate).toLocaleDateString()}
               </p>
-              <button className="w-full bg-secondary text-primary font-semibold py-2 rounded hover:bg-opacity-90 transition-colors">
+              <button className="w-full bg-secondary text-primary font-khand py-2 rounded hover:bg-opacity-90 transition-colors">
                 Create League
               </button>
             </Link>
