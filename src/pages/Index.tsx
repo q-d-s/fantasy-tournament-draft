@@ -3,13 +3,6 @@ import Navigation from "../components/Navigation";
 
 const tournaments = [
   {
-    id: "fifa-club-2023",
-    name: "FIFA Club World Cup 2023",
-    type: "FIFA_CLUB",
-    startDate: "2023-12-12",
-    endDate: "2023-12-22",
-  },
-  {
     id: "world-cup-2026",
     name: "FIFA World Cup 2026",
     type: "FIFA_WORLD_CUP",
@@ -33,6 +26,11 @@ const tournaments = [
 ];
 
 const Index = () => {
+  const currentDate = new Date();
+  const futureTournaments = tournaments.filter(
+    (tournament) => new Date(tournament.startDate) > currentDate
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -40,7 +38,7 @@ const Index = () => {
         <h1 className="text-4xl font-bold text-primary mb-8">Tournament Fantasy Draft</h1>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {tournaments.map((tournament) => (
+          {futureTournaments.map((tournament) => (
             <Link
               key={tournament.id}
               to={`/leagues/create?tournament=${tournament.id}`}
