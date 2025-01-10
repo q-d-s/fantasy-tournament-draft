@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      league_invites: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          expires_at: string | null
+          id: string
+          invite_code: string | null
+          league_id: string | null
+          phone: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string | null
+          league_id?: string | null
+          phone?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string | null
+          league_id?: string | null
+          phone?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_invites_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       league_members: {
         Row: {
           joined_at: string
@@ -41,9 +82,12 @@ export type Database = {
           draft_date: string | null
           id: string
           invite_code: string | null
+          is_public: boolean | null
+          logo_url: string | null
           max_players: number | null
           name: string
           owner_id: string
+          settings: Json | null
           tournament_id: string
         }
         Insert: {
@@ -51,9 +95,12 @@ export type Database = {
           draft_date?: string | null
           id?: string
           invite_code?: string | null
+          is_public?: boolean | null
+          logo_url?: string | null
           max_players?: number | null
           name: string
           owner_id: string
+          settings?: Json | null
           tournament_id: string
         }
         Update: {
@@ -61,9 +108,12 @@ export type Database = {
           draft_date?: string | null
           id?: string
           invite_code?: string | null
+          is_public?: boolean | null
+          logo_url?: string | null
           max_players?: number | null
           name?: string
           owner_id?: string
+          settings?: Json | null
           tournament_id?: string
         }
         Relationships: [
@@ -81,19 +131,55 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          notification_preferences: Json | null
+          phone: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           id: string
+          notification_preferences?: Json | null
+          phone?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          notification_preferences?: Json | null
+          phone?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      sports_news: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          published_at: string | null
+          source: string | null
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          source?: string | null
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          published_at?: string | null
+          source?: string | null
+          title?: string
         }
         Relationships: []
       }
