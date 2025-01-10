@@ -2,32 +2,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Navigation from "../components/Navigation";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
-
-const worldCup2022Data = [
-  {
-    teamName: "Argentina",
-    group: "C",
-    wins: 2,
-    draws: 0,
-    losses: 1,
-    groupPoints: 6,
-    knockoutPoints: 35,
-    totalPoints: 46,
-  },
-  {
-    teamName: "France",
-    group: "D",
-    wins: 2,
-    draws: 0,
-    losses: 1,
-    groupPoints: 6,
-    knockoutPoints: 25,
-    totalPoints: 31,
-  },
-  // Add more teams as needed
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Points = () => {
+  const { data: worldCup2022Data = [], isLoading } = useQuery({
+    queryKey: ['teams'],
+    queryFn: async () => {
+      const { data: tournament } = await supabase
+        .from('tournaments')
+        .select('id')
+        .eq('type', 'FIFA_WORLD_CUP')
+        .single();
+
+      if (!tournament) return [];
+
+      const { data: teams } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('tournament_id', tournament.id)
+        .order('total_points', { ascending: false });
+
+      return teams || [];
+    },
+  });
+
   const topTeams = worldCup2022Data.slice(0, 8);
 
   return (
@@ -99,54 +98,60 @@ const Points = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-khand text-primary mb-6">2022 World Cup Results</h2>
           
-          <div className="mb-8">
-            <ChartContainer
-              className="h-[300px]"
-              config={{
-                group: { color: "#c2b067" },
-                knockout: { color: "#153624" },
-              }}
-            >
-              <BarChart data={topTeams}>
-                <XAxis dataKey="teamName" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="groupPoints" name="Group Points" stackId="points" fill="var(--color-group)" />
-                <Bar dataKey="knockoutPoints" name="Knockout Points" stackId="points" fill="var(--color-knockout)" />
-              </BarChart>
-            </ChartContainer>
-          </div>
+          {isLoading ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : (
+            <>
+              <div className="mb-8">
+                <ChartContainer
+                  className="h-[300px]"
+                  config={{
+                    group: { color: "#c2b067" },
+                    knockout: { color: "#153624" },
+                  }}
+                >
+                  <BarChart data={topTeams}>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="group_points" name="Group Points" stackId="points" fill="var(--color-group)" />
+                    <Bar dataKey="knockout_points" name="Knockout Points" stackId="points" fill="var(--color-knockout)" />
+                  </BarChart>
+                </ChartContainer>
+              </div>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Team</TableHead>
-                  <TableHead>Group</TableHead>
-                  <TableHead className="text-center">Wins</TableHead>
-                  <TableHead className="text-center">Draws</TableHead>
-                  <TableHead className="text-center">Losses</TableHead>
-                  <TableHead className="text-center">Group Points</TableHead>
-                  <TableHead className="text-center">Knockout Points</TableHead>
-                  <TableHead className="text-center">Total Points</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {worldCup2022Data.map((team) => (
-                  <TableRow key={team.teamName}>
-                    <TableCell className="font-medium">{team.teamName}</TableCell>
-                    <TableCell>{team.group}</TableCell>
-                    <TableCell className="text-center">{team.wins}</TableCell>
-                    <TableCell className="text-center">{team.draws}</TableCell>
-                    <TableCell className="text-center">{team.losses}</TableCell>
-                    <TableCell className="text-center">{team.groupPoints}</TableCell>
-                    <TableCell className="text-center">{team.knockoutPoints}</TableCell>
-                    <TableCell className="text-center font-semibold">{team.totalPoints}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Team</TableHead>
+                      <TableHead>Group</TableHead>
+                      <TableHead className="text-center">Wins</TableHead>
+                      <TableHead className="text-center">Draws</TableHead>
+                      <TableHead className="text-center">Losses</TableHead>
+                      <TableHead className="text-center">Group Points</TableHead>
+                      <TableHead className="text-center">Knockout Points</TableHead>
+                      <TableHead className="text-center">Total Points</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {worldCup2022Data.map((team) => (
+                      <TableRow key={team.id}>
+                        <TableCell className="font-medium">{team.name}</TableCell>
+                        <TableCell>{team.group_name}</TableCell>
+                        <TableCell className="text-center">{team.wins}</TableCell>
+                        <TableCell className="text-center">{team.draws}</TableCell>
+                        <TableCell className="text-center">{team.losses}</TableCell>
+                        <TableCell className="text-center">{team.group_points}</TableCell>
+                        <TableCell className="text-center">{team.knockout_points}</TableCell>
+                        <TableCell className="text-center font-semibold">{team.total_points}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>
