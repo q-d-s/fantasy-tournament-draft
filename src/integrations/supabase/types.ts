@@ -9,7 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      teams: {
+        Row: {
+          created_at: string | null
+          draws: number | null
+          group_name: string | null
+          group_points: number | null
+          id: string
+          knockout_points: number | null
+          losses: number | null
+          name: string
+          total_points: number | null
+          tournament_id: string | null
+          wins: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          draws?: number | null
+          group_name?: string | null
+          group_points?: number | null
+          id?: string
+          knockout_points?: number | null
+          losses?: number | null
+          name: string
+          total_points?: number | null
+          tournament_id?: string | null
+          wins?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          draws?: number | null
+          group_name?: string | null
+          group_points?: number | null
+          id?: string
+          knockout_points?: number | null
+          losses?: number | null
+          name?: string
+          total_points?: number | null
+          tournament_id?: string | null
+          wins?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournaments: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          name: string
+          start_date: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          name: string
+          start_date: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          start_date?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

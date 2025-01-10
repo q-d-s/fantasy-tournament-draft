@@ -4,6 +4,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type Team = Database['public']['Tables']['teams']['Row'];
 
 const Points = () => {
   const { data: worldCup2022Data = [], isLoading } = useQuery({
@@ -11,7 +14,7 @@ const Points = () => {
     queryFn: async () => {
       const { data: tournament } = await supabase
         .from('tournaments')
-        .select('id')
+        .select('*')
         .eq('type', 'FIFA_WORLD_CUP')
         .single();
 
