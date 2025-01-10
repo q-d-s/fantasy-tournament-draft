@@ -1,35 +1,39 @@
 import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
-
-const tournaments = [
-  {
-    id: "world-cup-2026",
-    name: "FIFA World Cup 2026",
-    type: "FIFA_WORLD_CUP",
-    startDate: "2026-06-11",
-    endDate: "2026-07-11",
-  },
-  {
-    id: "euros-2024",
-    name: "UEFA Euro 2024",
-    type: "EUROS",
-    startDate: "2024-06-14",
-    endDate: "2024-07-14",
-  },
-  {
-    id: "march-madness-2024",
-    name: "March Madness 2024",
-    type: "MARCH_MADNESS",
-    startDate: "2024-03-19",
-    endDate: "2024-04-08",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CalendarDays, Trophy, Users } from "lucide-react";
 
 const Index = () => {
-  const currentDate = new Date();
-  const futureTournaments = tournaments.filter(
-    (tournament) => new Date(tournament.startDate) > currentDate
-  );
+  const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
+    queryKey: ['tournaments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('*')
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: news, isLoading: newsLoading } = useQuery({
+    queryKey: ['sports_news'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sports_news')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(3);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -42,29 +46,89 @@ const Index = () => {
             className="w-24 h-24 mb-6"
           />
           <h1 className="text-5xl font-khand text-primary mb-4">Tournament Draft League</h1>
-          <p className="text-xl text-gray-600 font-khand">Pioneers of Fantasy Drafts</p>
+          <p className="text-xl text-gray-600 font-khand mb-8">Pioneers of Fantasy Drafts</p>
+          
+          {/* Welcome Message */}
+          <div className="max-w-3xl text-center mb-12">
+            <p className="text-lg text-gray-700 mb-4">
+              Welcome to Tournament Draft League, where the thrill of fantasy sports meets the excitement of real-world tournaments! 
+              Our cutting-edge app lets you draft teams for popular tournaments, challenging your sports knowledge and strategic thinking.
+            </p>
+            <Button asChild className="bg-secondary text-primary hover:bg-secondary/90">
+              <Link to="/instructions">Learn How to Play</Link>
+            </Button>
+          </div>
         </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {futureTournaments.map((tournament) => (
-            <Link
-              key={tournament.id}
-              to={`/leagues/create?tournament=${tournament.id}`}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-2 border-secondary/20 hover:border-secondary group"
-            >
-              <h2 className="text-2xl font-khand text-primary mb-2 group-hover:text-secondary transition-colors">
-                {tournament.name}
-              </h2>
-              <p className="text-gray-600 mb-4 font-khand">
-                {new Date(tournament.startDate).toLocaleDateString()} -{" "}
-                {new Date(tournament.endDate).toLocaleDateString()}
-              </p>
-              <button className="w-full bg-secondary text-primary font-khand py-2 rounded hover:bg-opacity-90 transition-colors">
-                Create League
-              </button>
-            </Link>
-          ))}
-        </div>
+
+        {/* Upcoming Tournaments Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-khand text-primary mb-6 text-center">Upcoming Tournaments</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tournamentsLoading ? (
+              <p className="text-center col-span-3">Loading tournaments...</p>
+            ) : tournaments?.map((tournament) => (
+              <Card key={tournament.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="font-khand text-2xl flex items-center gap-2">
+                    <Trophy className="h-6 w-6 text-secondary" />
+                    {tournament.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <CalendarDays className="h-5 w-5" />
+                      <span>
+                        {new Date(tournament.start_date).toLocaleDateString()} - {new Date(tournament.end_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Users className="h-5 w-5" />
+                      <span>Create or join a league now!</span>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button asChild variant="secondary" className="flex-1">
+                        <Link to={`/leagues/create?tournament=${tournament.id}`}>Create League</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="flex-1">
+                        <Link to="/leagues">Find Leagues</Link>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Latest News Section */}
+        <section>
+          <h2 className="text-3xl font-khand text-primary mb-6 text-center">Latest News</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newsLoading ? (
+              <p className="text-center col-span-3">Loading news...</p>
+            ) : news?.map((item) => (
+              <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                {item.image_url && (
+                  <img 
+                    src={item.image_url} 
+                    alt={item.title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                )}
+                <CardHeader>
+                  <CardTitle className="font-khand text-xl">{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 line-clamp-3">{item.content}</p>
+                  {item.source && (
+                    <p className="text-sm text-gray-500 mt-2">Source: {item.source}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
