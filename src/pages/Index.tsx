@@ -34,7 +34,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <main className="container mx-auto py-8 px-4">
+      <main className="container mx-auto py-8 px-4 mt-16">
         <div className="flex flex-col items-center mb-12">
           <img
             src="/lovable-uploads/92bd31db-561d-4a64-8e0a-8fbd69724992.png"

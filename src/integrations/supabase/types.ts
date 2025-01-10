@@ -9,6 +9,94 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      league_members: {
+        Row: {
+          joined_at: string
+          league_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          league_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          league_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_members_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leagues: {
+        Row: {
+          created_at: string
+          draft_date: string | null
+          id: string
+          invite_code: string | null
+          max_players: number | null
+          name: string
+          owner_id: string
+          tournament_id: string
+        }
+        Insert: {
+          created_at?: string
+          draft_date?: string | null
+          id?: string
+          invite_code?: string | null
+          max_players?: number | null
+          name: string
+          owner_id: string
+          tournament_id: string
+        }
+        Update: {
+          created_at?: string
+          draft_date?: string | null
+          id?: string
+          invite_code?: string | null
+          max_players?: number | null
+          name?: string
+          owner_id?: string
+          tournament_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leagues_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       teams: {
         Row: {
           created_at: string | null

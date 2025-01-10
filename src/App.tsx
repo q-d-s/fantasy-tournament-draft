@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Points from "./pages/Points";
 import Instructions from "./pages/Instructions";
 import Draft from "./pages/Draft";
+import Auth from "./pages/Auth";
+import Account from "./pages/Account";
+import CreateLeague from "./pages/CreateLeague";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/points" element={<Points />} />
           <Route path="/instructions" element={<Instructions />} />
           <Route path="/draft" element={<Draft />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/leagues/create" element={<CreateLeague />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
