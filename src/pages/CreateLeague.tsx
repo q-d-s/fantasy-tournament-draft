@@ -5,7 +5,8 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { Tournament } from "@/types/tournament";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
 
 const CreateLeague = () => {
   const navigate = useNavigate();
@@ -13,12 +14,26 @@ const CreateLeague = () => {
   const [name, setName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [draftDate, setDraftDate] = useState("");
-  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
+  const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
+    queryKey: ['tournaments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('*')
+        .gte('start_date', new Date().toISOString())
+        .order('start_date', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTournament) {
+    if (!selectedTournamentId) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -36,7 +51,7 @@ const CreateLeague = () => {
         .from("leagues")
         .insert({
           name,
-          tournament_id: selectedTournament.id,
+          tournament_id: selectedTournamentId,
           owner_id: user.id,
           max_players: maxPlayers,
           draft_date: draftDate,
@@ -93,6 +108,29 @@ const CreateLeague = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tournament
+              </label>
+              <Select
+                value={selectedTournamentId}
+                onValueChange={setSelectedTournamentId}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a tournament" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tournamentsLoading ? (
+                    <SelectItem value="loading" disabled>Loading tournaments...</SelectItem>
+                  ) : tournaments?.map((tournament) => (
+                    <SelectItem key={tournament.id} value={tournament.id}>
+                      {tournament.name} ({new Date(tournament.start_date).toLocaleDateString()})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Maximum Players
               </label>
               <Input
@@ -114,6 +152,7 @@ const CreateLeague = () => {
                 type="datetime-local"
                 value={draftDate}
                 onChange={(e) => setDraftDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 16)}
               />
             </div>
 
