@@ -45,7 +45,7 @@ const Index = () => {
             alt="TDL Rounded Logo"
             className="w-24 h-24 mb-6"
           />
-          <h1 className="text-5xl font-khand text-primary mb-4">Tournament Draft League</h1>
+          <h1 className="text-5xl font-khand text-[#153624] mb-4">Tournament Draft League</h1>
           <p className="text-xl text-gray-600 font-khand mb-8">Pioneers of Fantasy Drafts</p>
           
           {/* Welcome Message */}
@@ -54,28 +54,33 @@ const Index = () => {
               Welcome to Tournament Draft League, where the thrill of fantasy sports meets the excitement of real-world tournaments! 
               Our cutting-edge app lets you draft teams for popular tournaments, challenging your sports knowledge and strategic thinking.
             </p>
-            <Button asChild className="bg-secondary text-primary hover:bg-secondary/90">
-              <Link to="/instructions">Learn How to Play</Link>
-            </Button>
+            <div className="flex gap-4 justify-center">
+              <Button asChild className="bg-[#153624] text-white hover:bg-[#153624]/90">
+                <Link to="/instructions">Learn How to Play</Link>
+              </Button>
+              <Button asChild variant="outline" className="border-[#153624] text-[#153624] hover:bg-[#153624]/10">
+                <Link to="/leagues/create">Create a League</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Upcoming Tournaments Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-khand text-primary mb-6 text-center">Upcoming Tournaments</h2>
+          <h2 className="text-3xl font-khand text-[#153624] mb-6 text-center">Upcoming Tournaments</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tournamentsLoading ? (
               <p className="text-center col-span-3">Loading tournaments...</p>
             ) : tournaments?.map((tournament) => (
-              <Card key={tournament.id} className="hover:shadow-lg transition-shadow">
+              <Card key={tournament.id} className="hover:shadow-lg transition-shadow border-[#c2b067]/20">
                 <CardHeader>
                   <CardTitle className="font-khand text-2xl flex items-center gap-2">
-                    <Trophy className="h-6 w-6 text-secondary" />
+                    <Trophy className="h-6 w-6 text-[#c2b067]" />
                     {tournament.name}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2 text-gray-600">
                       <CalendarDays className="h-5 w-5" />
                       <span>
@@ -87,10 +92,10 @@ const Index = () => {
                       <span>Create or join a league now!</span>
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <Button asChild variant="secondary" className="flex-1">
+                      <Button asChild variant="default" className="flex-1 bg-[#153624] hover:bg-[#153624]/90">
                         <Link to={`/leagues/create?tournament=${tournament.id}`}>Create League</Link>
                       </Button>
-                      <Button asChild variant="outline" className="flex-1">
+                      <Button asChild variant="outline" className="flex-1 border-[#153624] text-[#153624] hover:bg-[#153624]/10">
                         <Link to="/leagues">Find Leagues</Link>
                       </Button>
                     </div>
@@ -103,12 +108,12 @@ const Index = () => {
 
         {/* Latest News Section */}
         <section>
-          <h2 className="text-3xl font-khand text-primary mb-6 text-center">Latest News</h2>
+          <h2 className="text-3xl font-khand text-[#153624] mb-6 text-center">Latest News</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {newsLoading ? (
               <p className="text-center col-span-3">Loading news...</p>
             ) : news?.map((item) => (
-              <Card key={item.id} className="hover:shadow-lg transition-shadow">
+              <Card key={item.id} className="hover:shadow-lg transition-shadow border-[#c2b067]/20">
                 {item.image_url && (
                   <img 
                     src={item.image_url} 
