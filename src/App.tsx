@@ -10,6 +10,7 @@ import Draft from "./pages/Draft";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
 import CreateLeague from "./pages/CreateLeague";
+import FindLeagues from "./pages/FindLeagues";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/account" element={<Account />} />
           <Route path="/leagues/create" element={<CreateLeague />} />
+          <Route path="/leagues" element={<FindLeagues />} />
         </Routes>
       </TooltipProvider>
     </QueryClientProvider>
