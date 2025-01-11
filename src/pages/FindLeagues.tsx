@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, Users, Trophy, CalendarDays } from "lucide-react";
+import { Search, Users, Trophy } from "lucide-react";
 
 const FindLeagues = () => {
   const { toast } = useToast();
@@ -45,7 +45,7 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name),
-          owner:profiles!leagues_owner_id_fkey(username),
+          owner:profiles(username),
           _count:league_members(count)
         `)
         .eq("is_public", true)
@@ -69,7 +69,7 @@ const FindLeagues = () => {
       const { data, error } = await supabase
         .from("league_members")
         .select(`
-          user:profiles!league_members_user_id_fkey(
+          profiles:profiles(
             username,
             avatar_url
           )
@@ -84,9 +84,15 @@ const FindLeagues = () => {
   // Join league mutation
   const joinLeagueMutation = useMutation({
     mutationFn: async (leagueId: string) => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error("Not authenticated");
+
       const { error } = await supabase
         .from("league_members")
-        .insert({ league_id: leagueId });
+        .insert({ 
+          league_id: leagueId,
+          user_id: user.user.id 
+        });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -167,13 +173,13 @@ const FindLeagues = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                leagues?.map((league) => (
+                leagues?.map((league: any) => (
                   <TableRow key={league.id}>
                     <TableCell className="font-medium">{league.name}</TableCell>
                     <TableCell>{league.tournament?.name}</TableCell>
                     <TableCell>{league.owner?.username}</TableCell>
                     <TableCell>
-                      {league._count?.count} / {league.max_players}
+                      {league._count?.[0]?.count ?? 0} / {league.max_players}
                     </TableCell>
                     <TableCell>
                       {new Date(league.created_at).toLocaleDateString()}
@@ -191,7 +197,7 @@ const FindLeagues = () => {
                           size="sm"
                           onClick={() => joinLeagueMutation.mutate(league.id)}
                           disabled={
-                            league._count?.count >= league.max_players ||
+                            (league._count?.[0]?.count ?? 0) >= league.max_players ||
                             joinLeagueMutation.isPending
                           }
                         >
@@ -221,21 +227,21 @@ const FindLeagues = () => {
                 <div className="space-y-4">
                   {leagueMembers?.map((member: any) => (
                     <div
-                      key={member.user.username}
+                      key={member.profiles.username}
                       className="flex items-center gap-3 p-2 rounded-lg bg-gray-50"
                     >
-                      {member.user.avatar_url ? (
+                      {member.profiles.avatar_url ? (
                         <img
-                          src={member.user.avatar_url}
-                          alt={member.user.username}
+                          src={member.profiles.avatar_url}
+                          alt={member.profiles.username}
                           className="w-8 h-8 rounded-full"
                         />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
-                          {member.user.username[0].toUpperCase()}
+                          {member.profiles.username[0].toUpperCase()}
                         </div>
                       )}
-                      <span>{member.user.username}</span>
+                      <span>{member.profiles.username}</span>
                     </div>
                   ))}
                 </div>
