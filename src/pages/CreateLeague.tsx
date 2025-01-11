@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const CreateLeague = () => {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ const CreateLeague = () => {
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [draftDate, setDraftDate] = useState("");
   const [selectedTournamentId, setSelectedTournamentId] = useState<string>("");
+  const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
@@ -47,7 +50,8 @@ const CreateLeague = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { data: league, error } = await supabase
+      // First, create the league
+      const { data: league, error: leagueError } = await supabase
         .from("leagues")
         .insert({
           name,
@@ -55,24 +59,28 @@ const CreateLeague = () => {
           owner_id: user.id,
           max_players: maxPlayers,
           draft_date: draftDate,
+          is_public: isPublic,
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (leagueError) throw leagueError;
 
-      // Add the creator as a league member
-      await supabase
+      // Then, add the creator as a league member in a separate query
+      const { error: memberError } = await supabase
         .from("league_members")
         .insert({
           league_id: league.id,
           user_id: user.id,
         });
 
+      if (memberError) throw memberError;
+
       toast({
         title: "League created",
-        description: "Your league has been created successfully.",
+        description: `Your league has been created successfully. ${isPublic ? 'It will be visible in the public leagues list.' : 'Share the invite link to add members.'}`,
       });
+      
       navigate(`/leagues/${league.id}`);
     } catch (error: any) {
       toast({
@@ -154,6 +162,21 @@ const CreateLeague = () => {
                 onChange={(e) => setDraftDate(e.target.value)}
                 min={new Date().toISOString().slice(0, 16)}
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="public-league"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+              <Label htmlFor="public-league">Make this league public</Label>
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              {isPublic 
+                ? "Public leagues can be found by anyone in the Find Leagues page."
+                : "Private leagues can only be joined through an invite link."}
             </div>
 
             <Button
