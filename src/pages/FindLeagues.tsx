@@ -26,14 +26,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, Users, Trophy } from "lucide-react";
+import { Search, Users, Trophy, CalendarDays } from "lucide-react";
+
+const EmptyState = () => (
+  <div className="text-center py-10">
+    <Trophy className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+    <h3 className="text-lg font-medium text-gray-900 mb-2">No Leagues Found</h3>
+    <p className="text-gray-500">
+      There are no public leagues available at the moment.
+      <br />
+      Why not create one?
+    </p>
+    <Button
+      className="mt-4"
+      onClick={() => window.location.href = '/create-league'}
+    >
+      Create a League
+    </Button>
+  </div>
+);
 
 const FindLeagues = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("created_at");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState("tournament.start_date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedLeague, setSelectedLeague] = useState<any>(null);
 
   // Fetch leagues
@@ -44,7 +62,7 @@ const FindLeagues = () => {
         .from("leagues")
         .select(`
           *,
-          tournament:tournaments(name),
+          tournament:tournaments(name, start_date, end_date),
           owner:profiles(username),
           _count:league_members(count)
         `)
@@ -57,7 +75,12 @@ const FindLeagues = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      
+      // Filter out leagues whose tournaments have already started
+      return data.filter(league => {
+        const tournamentStartDate = new Date(league.tournament?.start_date);
+        return tournamentStartDate > new Date();
+      });
     },
   });
 
@@ -86,6 +109,20 @@ const FindLeagues = () => {
     mutationFn: async (leagueId: string) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
+
+      // Check if tournament hasn't started
+      const { data: league } = await supabase
+        .from("leagues")
+        .select("tournament:tournaments(start_date)")
+        .eq("id", leagueId)
+        .single();
+
+      if (!league) throw new Error("League not found");
+      
+      const tournamentStartDate = new Date(league.tournament.start_date);
+      if (tournamentStartDate <= new Date()) {
+        throw new Error("Cannot join league after tournament has started");
+      }
 
       const { error } = await supabase
         .from("league_members")
@@ -134,9 +171,9 @@ const FindLeagues = () => {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="tournament.start_date">Tournament Start</SelectItem>
               <SelectItem value="created_at">Date Created</SelectItem>
               <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="tournament_id">Tournament</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -148,35 +185,31 @@ const FindLeagues = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>League Name</TableHead>
-                <TableHead>Tournament</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          {isLoading ? (
+            <div className="p-8 text-center">Loading leagues...</div>
+          ) : !leagues?.length ? (
+            <EmptyState />
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    Loading leagues...
-                  </TableCell>
+                  <TableHead>League Name</TableHead>
+                  <TableHead>Tournament</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Members</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ) : leagues?.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    No leagues found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                leagues?.map((league: any) => (
+              </TableHeader>
+              <TableBody>
+                {leagues.map((league: any) => (
                   <TableRow key={league.id}>
                     <TableCell className="font-medium">{league.name}</TableCell>
                     <TableCell>{league.tournament?.name}</TableCell>
+                    <TableCell>
+                      {new Date(league.tournament?.start_date).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>{league.owner?.username}</TableCell>
                     <TableCell>
                       {league._count?.[0]?.count ?? 0} / {league.max_players}
@@ -206,10 +239,10 @@ const FindLeagues = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
 
         <Dialog open={!!selectedLeague} onOpenChange={() => setSelectedLeague(null)}>
