@@ -1,5 +1,5 @@
 /**
- * League creation form component
+ * League creation form component with validation and error handling
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,23 +10,29 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { createLeague, fetchUpcomingTournaments } from "@/utils/leagueUtils";
+import { createLeague, fetchUpcomingTournaments } from "@/services/leagueService";
+import type { LeagueFormData } from "@/types/league.types";
 
 interface LeagueFormProps {
+  /** Optional callback function to be called after successful league creation */
   onSuccess?: (leagueId: string) => void;
 }
 
+/**
+ * Form component for creating a new league
+ */
 export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LeagueFormData>({
     name: "",
+    tournamentId: "",
     maxPlayers: 10,
-    selectedTournamentId: "",
     isPublic: false,
   });
   const [loading, setLoading] = useState(false);
 
+  // Fetch tournaments using React Query for caching and automatic retries
   const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
     queryKey: ['tournaments'],
     queryFn: async () => {
@@ -43,9 +49,13 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
     }
   });
 
+  /**
+   * Handles form submission and league creation
+   * @param {React.FormEvent} e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.selectedTournamentId) {
+    if (!formData.tournamentId) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -56,13 +66,7 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
 
     setLoading(true);
     try {
-      const { data: league, error } = await createLeague(
-        formData.name,
-        formData.selectedTournamentId,
-        formData.maxPlayers,
-        formData.isPublic
-      );
-
+      const { data: league, error } = await createLeague(formData);
       if (error) throw error;
 
       toast({
@@ -72,9 +76,9 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
           : "Share your league's invite link to add members.",
       });
       
-      if (onSuccess) {
+      if (onSuccess && league) {
         onSuccess(league.id);
-      } else {
+      } else if (league) {
         navigate(`/leagues/${league.id}`);
       }
     } catch (error: any) {
@@ -106,8 +110,8 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
       <div className="space-y-2">
         <Label htmlFor="tournament">Tournament</Label>
         <Select
-          value={formData.selectedTournamentId}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, selectedTournamentId: value }))}
+          value={formData.tournamentId}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, tournamentId: value }))}
         >
           <SelectTrigger id="tournament" className="border-[#153624] focus:ring-[#c2b067]">
             <SelectValue placeholder="Select a tournament" />
