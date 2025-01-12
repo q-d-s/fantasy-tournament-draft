@@ -1,15 +1,7 @@
-/**
- * Create League page component
- * Allows users to create a new league by providing necessary details
- */
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LeagueForm } from "@/components/leagues/LeagueForm";
 
-/**
- * CreateLeague page component that renders the league creation form
- * with proper layout and navigation
- */
 const CreateLeague = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -21,11 +13,10 @@ const CreateLeague = () => {
               Create a League
             </CardTitle>
             <CardDescription>
-              Set up your league and invite players to join. You can make it public 
+              Set up your league and invite players to join. You can make it public
               for anyone to find or keep it private for invited members only.
             </CardDescription>
           </CardHeader>
-          
           <CardContent>
             <LeagueForm />
           </CardContent>
