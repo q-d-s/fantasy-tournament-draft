@@ -23,7 +23,7 @@ export const usePublicLeagues = () => {
       const leagues = (data || []).map(league => ({
         ...league,
         tournament: league.tournament?.[0] || null,
-        owner: league.owner?.[0] ? { username: league.owner[0].username || null } : null,
+        owner: league.owner?.[0] ? { username: league.owner[0] } : null,
         member_count: league.member_count || []
       }));
 
