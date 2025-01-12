@@ -16,7 +16,9 @@ const Points = () => {
         .from('tournaments')
         .select('*')
         .eq('type', 'FIFA_WORLD_CUP')
-        .single();
+        .order('start_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (!tournament) return [];
 
