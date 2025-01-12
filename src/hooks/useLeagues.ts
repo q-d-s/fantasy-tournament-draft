@@ -18,7 +18,16 @@ export const usePublicLeagues = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return (data || []) as League[];
+      
+      // Transform the data to match our League type
+      const leagues = (data || []).map(league => ({
+        ...league,
+        tournament: league.tournament?.[0] || null,
+        owner: league.owner?.[0] || null,
+        member_count: league.member_count || []
+      }));
+
+      return leagues as League[];
     },
   });
 };

@@ -9,7 +9,7 @@ export type League = Database["public"]["Tables"]["leagues"]["Row"] & {
   owner?: {
     username: string | null;
   } | null;
-  member_count?: { count: number }[];
+  member_count?: Array<{ count: number }>;
 };
 
 export type LeagueFormInputs = {
