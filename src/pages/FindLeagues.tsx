@@ -78,7 +78,9 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:profiles(username),
+          owner:users!leagues_owner_id_fkey(
+            username:profiles!profiles_id_fkey(username)
+          ),
           member_count:league_members(count)
         `)
         .eq("is_public", true);
@@ -98,7 +100,10 @@ const FindLeagues = () => {
       
       let filteredData = (data as any[]).map(league => ({
         ...league,
-        member_count: league.member_count?.[0]?.count || 0
+        member_count: league.member_count?.[0]?.count || 0,
+        owner: {
+          username: league.owner?.username || 'Unknown'
+        }
       })).filter(league => {
         const tournamentStartDate = new Date(league.tournament?.start_date);
         return tournamentStartDate > new Date();
