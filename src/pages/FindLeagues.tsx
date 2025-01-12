@@ -78,9 +78,7 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:users!leagues_owner_id_fkey(
-            username:profiles!profiles_id_fkey(username)
-          ),
+          owner:profiles!leagues_owner_id_fkey(username),
           member_count:league_members(count)
         `)
         .eq("is_public", true);
