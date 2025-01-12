@@ -50,11 +50,11 @@ const FindLeagues = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("tournament.start_date");
+  const [sortBy, setSortBy] = useState("created_at"); // Changed default sort
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedLeague, setSelectedLeague] = useState<any>(null);
 
-  // Fetch leagues
+  // Fetch leagues with corrected ordering syntax
   const { data: leagues, isLoading } = useQuery({
     queryKey: ["public-leagues", sortBy, sortOrder, search],
     queryFn: async () => {
@@ -66,25 +66,43 @@ const FindLeagues = () => {
           owner:profiles(username),
           _count:league_members(count)
         `)
-        .eq("is_public", true)
-        .order(sortBy, { ascending: sortOrder === "asc" });
+        .eq("is_public", true);
 
+      // Apply search filter if present
       if (search) {
         query = query.ilike("name", `%${search}%`);
+      }
+
+      // Apply ordering based on selected field
+      if (sortBy === "tournament.start_date") {
+        // For related table fields, we'll sort after fetching
+        query = query.order("created_at", { ascending: sortOrder === "asc" });
+      } else {
+        query = query.order(sortBy, { ascending: sortOrder === "asc" });
       }
 
       const { data, error } = await query;
       if (error) throw error;
       
       // Filter out leagues whose tournaments have already started
-      return data.filter(league => {
+      let filteredData = data.filter(league => {
         const tournamentStartDate = new Date(league.tournament?.start_date);
         return tournamentStartDate > new Date();
       });
+
+      // Sort by tournament start date if selected
+      if (sortBy === "tournament.start_date") {
+        filteredData.sort((a, b) => {
+          const dateA = new Date(a.tournament?.start_date || 0).getTime();
+          const dateB = new Date(b.tournament?.start_date || 0).getTime();
+          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        });
+      }
+
+      return filteredData;
     },
   });
 
-  // Fetch league members when a league is selected
   const { data: leagueMembers, isLoading: loadingMembers } = useQuery({
     queryKey: ["league-members", selectedLeague?.id],
     queryFn: async () => {
