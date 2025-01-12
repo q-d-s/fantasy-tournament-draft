@@ -11,7 +11,9 @@ export const usePublicLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:profiles(username),
+          owner:owner_id(
+            username:profiles!inner(username)
+          ),
           member_count:league_members(count)
         `)
         .eq("is_public", true)
@@ -23,7 +25,7 @@ export const usePublicLeagues = () => {
       const leagues = (data || []).map(league => ({
         ...league,
         tournament: league.tournament?.[0] || null,
-        owner: league.owner?.[0] ? { username: league.owner[0] } : null,
+        owner: league.owner ? { username: league.owner.username } : null,
         member_count: league.member_count || []
       }));
 
