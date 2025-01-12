@@ -39,13 +39,9 @@ interface LeagueData {
     end_date: string;
   };
   owner: {
-    profile: {
-      username: string;
-    };
+    username: string;
   };
-  _count: [{
-    count: number;
-  }];
+  member_count: number;
 }
 
 const EmptyState = () => (
@@ -82,8 +78,8 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:auth.users!inner(profile:profiles!inner(username)),
-          _count:league_members(count)
+          owner:profiles(username),
+          member_count:league_members(count)
         `)
         .eq("is_public", true);
 
@@ -100,7 +96,10 @@ const FindLeagues = () => {
       const { data, error } = await query;
       if (error) throw error;
       
-      let filteredData = (data as LeagueData[]).filter(league => {
+      let filteredData = (data as any[]).map(league => ({
+        ...league,
+        member_count: league.member_count?.[0]?.count || 0
+      })).filter(league => {
         const tournamentStartDate = new Date(league.tournament?.start_date);
         return tournamentStartDate > new Date();
       });
@@ -113,12 +112,7 @@ const FindLeagues = () => {
         });
       }
 
-      return filteredData.map(league => ({
-        ...league,
-        owner: {
-          username: league.owner.profile.username
-        }
-      }));
+      return filteredData as LeagueData[];
     },
   });
 
@@ -238,7 +232,7 @@ const FindLeagues = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leagues.map((league: any) => (
+                {leagues.map((league) => (
                   <TableRow key={league.id}>
                     <TableCell className="font-medium">{league.name}</TableCell>
                     <TableCell>{league.tournament?.name}</TableCell>
@@ -247,7 +241,7 @@ const FindLeagues = () => {
                     </TableCell>
                     <TableCell>{league.owner?.username}</TableCell>
                     <TableCell>
-                      {league._count?.[0]?.count ?? 0} / {league.max_players}
+                      {league.member_count} / {league.max_players}
                     </TableCell>
                     <TableCell>
                       {new Date(league.created_at).toLocaleDateString()}
@@ -265,7 +259,7 @@ const FindLeagues = () => {
                           size="sm"
                           onClick={() => joinLeagueMutation.mutate(league.id)}
                           disabled={
-                            (league._count?.[0]?.count ?? 0) >= league.max_players ||
+                            league.member_count >= league.max_players ||
                             joinLeagueMutation.isPending
                           }
                         >
