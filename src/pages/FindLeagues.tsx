@@ -50,11 +50,11 @@ const FindLeagues = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("created_at"); // Changed default sort
+  const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedLeague, setSelectedLeague] = useState<any>(null);
 
-  // Fetch leagues with corrected ordering syntax
+  // Fetch leagues with corrected join syntax
   const { data: leagues, isLoading } = useQuery({
     queryKey: ["public-leagues", sortBy, sortOrder, search],
     queryFn: async () => {
@@ -63,7 +63,9 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:profiles(username),
+          owner:auth.users!inner(
+            profile:profiles!inner(username)
+          ),
           _count:league_members(count)
         `)
         .eq("is_public", true);
@@ -99,7 +101,13 @@ const FindLeagues = () => {
         });
       }
 
-      return filteredData;
+      // Transform the data to match the expected format
+      return filteredData.map(league => ({
+        ...league,
+        owner: {
+          username: league.owner.profile.username
+        }
+      }));
     },
   });
 
