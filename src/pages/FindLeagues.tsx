@@ -28,6 +28,26 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Search, Users, Trophy, CalendarDays } from "lucide-react";
 
+interface LeagueData {
+  id: string;
+  name: string;
+  created_at: string;
+  max_players: number;
+  tournament: {
+    name: string;
+    start_date: string;
+    end_date: string;
+  };
+  owner: {
+    profile: {
+      username: string;
+    };
+  };
+  _count: [{
+    count: number;
+  }];
+}
+
 const EmptyState = () => (
   <div className="text-center py-10">
     <Trophy className="w-12 h-12 mx-auto text-gray-400 mb-4" />
@@ -52,9 +72,8 @@ const FindLeagues = () => {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [selectedLeague, setSelectedLeague] = useState<any>(null);
+  const [selectedLeague, setSelectedLeague] = useState<LeagueData | null>(null);
 
-  // Fetch leagues with corrected join syntax
   const { data: leagues, isLoading } = useQuery({
     queryKey: ["public-leagues", sortBy, sortOrder, search],
     queryFn: async () => {
@@ -63,21 +82,16 @@ const FindLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:auth.users!inner(
-            profile:profiles!inner(username)
-          ),
+          owner:auth.users!inner(profile:profiles!inner(username)),
           _count:league_members(count)
         `)
         .eq("is_public", true);
 
-      // Apply search filter if present
       if (search) {
         query = query.ilike("name", `%${search}%`);
       }
 
-      // Apply ordering based on selected field
       if (sortBy === "tournament.start_date") {
-        // For related table fields, we'll sort after fetching
         query = query.order("created_at", { ascending: sortOrder === "asc" });
       } else {
         query = query.order(sortBy, { ascending: sortOrder === "asc" });
@@ -86,13 +100,11 @@ const FindLeagues = () => {
       const { data, error } = await query;
       if (error) throw error;
       
-      // Filter out leagues whose tournaments have already started
-      let filteredData = data.filter(league => {
+      let filteredData = (data as LeagueData[]).filter(league => {
         const tournamentStartDate = new Date(league.tournament?.start_date);
         return tournamentStartDate > new Date();
       });
 
-      // Sort by tournament start date if selected
       if (sortBy === "tournament.start_date") {
         filteredData.sort((a, b) => {
           const dateA = new Date(a.tournament?.start_date || 0).getTime();
@@ -101,7 +113,6 @@ const FindLeagues = () => {
         });
       }
 
-      // Transform the data to match the expected format
       return filteredData.map(league => ({
         ...league,
         owner: {
@@ -130,13 +141,11 @@ const FindLeagues = () => {
     enabled: !!selectedLeague,
   });
 
-  // Join league mutation
   const joinLeagueMutation = useMutation({
     mutationFn: async (leagueId: string) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
-      // Check if tournament hasn't started
       const { data: league } = await supabase
         .from("leagues")
         .select("tournament:tournaments(start_date)")
