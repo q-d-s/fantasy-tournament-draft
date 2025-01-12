@@ -11,9 +11,7 @@ export const usePublicLeagues = () => {
         .select(`
           *,
           tournament:tournaments(name, start_date, end_date),
-          owner:owner_id(
-            username:profiles!inner(username)
-          ),
+          owner:profiles!owner_id(username),
           member_count:league_members(count)
         `)
         .eq("is_public", true)
