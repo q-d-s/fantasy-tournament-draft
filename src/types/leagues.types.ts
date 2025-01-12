@@ -5,10 +5,10 @@ export type League = Database["public"]["Tables"]["leagues"]["Row"] & {
     name: string;
     start_date: string;
     end_date: string;
-  };
+  } | null;
   owner?: {
     username: string | null;
-  };
+  } | null;
   member_count?: { count: number }[];
 };
 

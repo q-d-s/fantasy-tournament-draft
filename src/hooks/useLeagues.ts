@@ -5,7 +5,7 @@ import type { League } from "@/types/leagues.types";
 export const usePublicLeagues = () => {
   return useQuery({
     queryKey: ["public-leagues"],
-    queryFn: async (): Promise<League[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("leagues")
         .select(`
@@ -18,7 +18,7 @@ export const usePublicLeagues = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as League[];
+      return (data || []) as League[];
     },
   });
 };
@@ -27,10 +27,12 @@ export const useUpcomingTournaments = () => {
   return useQuery({
     queryKey: ["tournaments"],
     queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      
       const { data, error } = await supabase
         .from("tournaments")
         .select("*")
-        .gte("start_date", new Date().toISOString())
+        .gte("start_date", today)
         .order("start_date", { ascending: true });
 
       if (error) throw error;
