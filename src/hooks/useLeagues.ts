@@ -18,7 +18,7 @@ export const usePublicLeagues = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      return data as League[];
     },
   });
 };
