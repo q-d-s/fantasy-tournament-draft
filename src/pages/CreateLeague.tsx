@@ -29,7 +29,14 @@ const CreateLeague = () => {
         .gte('start_date', new Date().toISOString())
         .order('start_date', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error loading tournaments",
+          description: error.message,
+        });
+        throw error;
+      }
       return data;
     }
   });
@@ -97,10 +104,10 @@ const CreateLeague = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto py-8 px-4">
+      <main className="container mx-auto py-8 px-4 mt-16">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className="text-3xl font-khand text-primary">Create a League</CardTitle>
+            <CardTitle className="text-3xl font-khand text-[#153624]">Create a League</CardTitle>
             <CardDescription>
               Set up your league and invite players to join. You can make it public for anyone to find or keep it private for invited members only.
             </CardDescription>
@@ -117,6 +124,7 @@ const CreateLeague = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your league name"
+                  className="border-[#153624] focus-visible:ring-[#c2b067]"
                 />
               </div>
 
@@ -126,7 +134,7 @@ const CreateLeague = () => {
                   value={selectedTournamentId}
                   onValueChange={setSelectedTournamentId}
                 >
-                  <SelectTrigger id="tournament">
+                  <SelectTrigger id="tournament" className="border-[#153624] focus:ring-[#c2b067]">
                     <SelectValue placeholder="Select a tournament" />
                   </SelectTrigger>
                   <SelectContent>
@@ -151,6 +159,7 @@ const CreateLeague = () => {
                   max="20"
                   value={maxPlayers}
                   onChange={(e) => setMaxPlayers(parseInt(e.target.value))}
+                  className="border-[#153624] focus-visible:ring-[#c2b067]"
                 />
                 <p className="text-sm text-muted-foreground">
                   Set the total number of players that can join your league.
@@ -162,6 +171,7 @@ const CreateLeague = () => {
                   id="public-league"
                   checked={isPublic}
                   onCheckedChange={setIsPublic}
+                  className="data-[state=checked]:bg-[#153624]"
                 />
                 <Label htmlFor="public-league">Make this league public</Label>
               </div>
@@ -174,7 +184,7 @@ const CreateLeague = () => {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-[#153624] hover:bg-[#153624]/90 text-white"
                 disabled={loading}
               >
                 {loading ? "Creating..." : "Create League"}
