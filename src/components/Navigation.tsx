@@ -32,6 +32,13 @@ const Navigation = () => {
           />
         </Link>
         <div className="flex gap-6">
+          <Link 
+            to="/instructions" 
+            className="font-khand hover:text-secondary transition-colors relative group"
+          >
+            How to Play
+            <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+          </Link>
           {user ? (
             <>
               <Link 
