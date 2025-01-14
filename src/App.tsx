@@ -11,6 +11,9 @@ import Auth from "./pages/Auth";
 import Account from "./pages/Account";
 import CreateLeague from "./pages/CreateLeague";
 import FindLeagues from "./pages/FindLeagues";
+import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/account" element={<Account />} />
           <Route path="/leagues/create" element={<CreateLeague />} />
           <Route path="/leagues" element={<FindLeagues />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/sitemap" element={<Sitemap />} />
         </Routes>
       </TooltipProvider>
     </QueryClientProvider>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { BookOpen, PlusCircle, Search, User } from "lucide-react";
 
 const Navigation = () => {
   const [user, setUser] = useState<any>(null);
@@ -31,41 +32,49 @@ const Navigation = () => {
             className="h-10"
           />
         </Link>
-        <div className="flex gap-6">
+        <div className="flex gap-6 items-center">
+          <Link 
+            to="/leagues/create" 
+            className="font-khand hover:text-secondary transition-colors relative group flex items-center gap-2"
+          >
+            <PlusCircle className="h-5 w-5" />
+            Create League
+            <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+          </Link>
+          
+          <Link 
+            to="/leagues" 
+            className="font-khand hover:text-secondary transition-colors relative group flex items-center gap-2"
+          >
+            <Search className="h-5 w-5" />
+            Find Leagues
+            <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+          </Link>
+          
           <Link 
             to="/instructions" 
-            className="font-khand hover:text-secondary transition-colors relative group"
+            className="font-khand hover:text-secondary transition-colors relative group flex items-center gap-2"
           >
+            <BookOpen className="h-5 w-5" />
             How to Play
             <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
           </Link>
+
           {user ? (
-            <>
-              <Link 
-                to="/leagues/create" 
-                className="font-khand hover:text-secondary transition-colors relative group"
-              >
-                Create League
-                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-              </Link>
-              <Link 
-                to="/leagues" 
-                className="font-khand hover:text-secondary transition-colors relative group"
-              >
-                Find Leagues
-                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-              </Link>
-              <Link 
-                to="/account" 
-                className="font-khand hover:text-secondary transition-colors relative group"
-              >
-                My Account
-                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
-              </Link>
-            </>
+            <Link 
+              to="/account" 
+              className="font-khand hover:text-secondary transition-colors relative group flex items-center gap-2"
+            >
+              <User className="h-5 w-5" />
+              My Account
+              <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+            </Link>
           ) : (
             <Button asChild variant="secondary">
-              <Link to="/auth">Sign In</Link>
+              <Link to="/auth" className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Sign In
+              </Link>
             </Button>
           )}
         </div>

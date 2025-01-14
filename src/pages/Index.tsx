@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Trophy, Users } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
@@ -36,9 +37,9 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navigation />
-      <main className="container mx-auto py-8 px-4 mt-16">
+      <main className="container mx-auto py-8 px-4 mt-16 flex-grow">
         <div className="flex flex-col items-center mb-12">
           <img
             src="/lovable-uploads/92bd31db-561d-4a64-8e0a-8fbd69724992.png"
@@ -135,6 +136,7 @@ const Index = () => {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 };
