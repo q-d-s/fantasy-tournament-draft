@@ -10,7 +10,6 @@ const Footer = () => {
     const form = e.target as HTMLFormElement;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     
-    // TODO: Implement email signup functionality
     toast({
       title: "Thanks for signing up!",
       description: "You'll receive updates about TDL soon.",
