@@ -22,7 +22,9 @@ const Navigation = () => {
           .eq("id", user.id)
           .single();
         
-        setProfile(profileData);
+        if (profileData) {
+          setProfile(profileData as Profile);
+        }
       }
     };
 
@@ -38,7 +40,9 @@ const Navigation = () => {
           .eq("id", session.user.id)
           .single();
         
-        setProfile(profileData);
+        if (profileData) {
+          setProfile(profileData as Profile);
+        }
       } else {
         setProfile(null);
       }

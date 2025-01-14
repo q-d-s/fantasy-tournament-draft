@@ -1,12 +1,11 @@
+import { Json } from "@/integrations/supabase/types";
+
 export interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
   created_at: string;
-  notification_preferences: {
-    daily_recap: boolean;
-    email_notifications: boolean;
-  } | null;
+  notification_preferences: Json;
   phone: string | null;
   email_notifications: boolean;
   phone_notifications: boolean;
@@ -16,10 +15,7 @@ export interface Profile {
 export interface ProfileUpdate {
   username?: string;
   avatar_url?: string;
-  notification_preferences?: {
-    daily_recap: boolean;
-    email_notifications: boolean;
-  };
+  notification_preferences?: Json;
   phone?: string;
   email_notifications?: boolean;
   phone_notifications?: boolean;

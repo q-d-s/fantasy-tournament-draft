@@ -30,7 +30,9 @@ export const useProfile = () => {
 
       if (profileError) throw profileError;
       
-      setProfile(data);
+      if (data) {
+        setProfile(data as Profile);
+      }
     } catch (err) {
       setError(err as Error);
       toast({
@@ -56,7 +58,7 @@ export const useProfile = () => {
 
       if (updateError) throw updateError;
       
-      setProfile(prev => prev ? { ...prev, ...updates } : null);
+      setProfile(prev => prev ? { ...prev, ...updates } as Profile : null);
       
       toast({
         title: "Success",
