@@ -8,6 +8,6 @@ export type Json =
 
 export interface AuthUser {
   id: string;
-  email: string;
+  email?: string | undefined;
   created_at: string;
 }

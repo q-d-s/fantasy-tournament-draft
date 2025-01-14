@@ -9,14 +9,32 @@ export const useAuth = () => {
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      if (user) {
+        const authUser: AuthUser = {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at,
+        };
+        setUser(authUser);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     };
 
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        const authUser: AuthUser = {
+          id: session.user.id,
+          email: session.user.email,
+          created_at: session.user.created_at,
+        };
+        setUser(authUser);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
