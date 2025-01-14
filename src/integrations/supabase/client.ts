@@ -16,5 +16,8 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       'Authorization': `Bearer ${supabaseAnonKey}`,
       'apikey': supabaseAnonKey
     }
+  },
+  db: {
+    schema: 'public'
   }
 });
