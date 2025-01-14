@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Profile, ProfileUpdate } from '@/types/profile';
+import { Profile, ProfileUpdate } from '@/types/database';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from './useAuth';
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const { user } = useAuth();
 
   const fetchProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         setError(new Error('No user found'));
         return;
@@ -45,10 +41,14 @@ export const useProfile = () => {
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
   const updateProfile = async (updates: ProfileUpdate) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) throw new Error('No user found');
 
       const { error: updateError } = await supabase

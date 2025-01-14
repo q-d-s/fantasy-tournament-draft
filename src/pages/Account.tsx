@@ -1,89 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { User, Trophy, Bell, BellOff } from "lucide-react";
-
-interface Profile {
-  username: string;
-  avatar_url: string | null;
-  email_notifications: boolean;
-  phone_notifications: boolean;
-  default_avatar_icon: string;
-}
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 const Account = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
+  const { profile, loading, updateProfile } = useProfile();
 
   useEffect(() => {
-    const getProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data: profileData, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load profile data.",
-        });
-      } else if (profileData) {
-        setProfile(profileData);
-      }
-      
-      setUser(user);
-      setLoading(false);
-    };
-
-    getProfile();
-  }, [navigate, toast]);
-
-  const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", user.id);
-
-      if (error) throw error;
-      
-      setProfile(prev => prev ? { ...prev, ...updates } : null);
-      
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "There was an error updating your profile.",
-      });
+    if (!user && !loading) {
+      navigate("/auth");
     }
-  };
+  }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
