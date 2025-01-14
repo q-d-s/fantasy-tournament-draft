@@ -17,6 +17,7 @@ export type LeagueFormInputs = {
   tournamentId: string;
   maxPlayers: number;
   isPublic: boolean;
+  draftDate: string;
 };
 
 export type Tournament = {

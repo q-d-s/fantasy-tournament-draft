@@ -19,6 +19,8 @@ interface LeagueFormFieldsProps {
   setMaxPlayers: (players: number) => void;
   isPublic: boolean;
   setIsPublic: (isPublic: boolean) => void;
+  draftDate: string;
+  setDraftDate: (date: string) => void;
   tournaments?: Tournament[];
   isLoading?: boolean;
 }
@@ -32,6 +34,8 @@ export const LeagueFormFields = ({
   setMaxPlayers,
   isPublic,
   setIsPublic,
+  draftDate,
+  setDraftDate,
   tournaments,
   isLoading,
 }: LeagueFormFieldsProps) => {
@@ -74,6 +78,22 @@ export const LeagueFormFields = ({
             )}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="draftDate">Draft Date</Label>
+        <Input
+          id="draftDate"
+          required
+          type="date"
+          value={draftDate}
+          onChange={(e) => setDraftDate(e.target.value)}
+          className="border-[#153624] focus-visible:ring-[#c2b067]"
+          min={new Date().toISOString().split('T')[0]}
+        />
+        <p className="text-sm text-muted-foreground">
+          Select when you want to hold the draft for your league.
+        </p>
       </div>
 
       <div className="space-y-2">

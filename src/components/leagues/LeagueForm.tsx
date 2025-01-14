@@ -20,6 +20,7 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
     tournamentId: "",
     maxPlayers: 10,
     isPublic: false,
+    draftDate: new Date().toISOString().split('T')[0],
   });
 
   const { data: tournaments, isLoading: tournamentsLoading } = useUpcomingTournaments();
@@ -31,6 +32,15 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
         variant: "destructive",
         title: "Error",
         description: "Please select a tournament.",
+      });
+      return;
+    }
+
+    if (!formData.draftDate) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a draft date.",
       });
       return;
     }
@@ -77,6 +87,10 @@ export const LeagueForm = ({ onSuccess }: LeagueFormProps) => {
         isPublic={formData.isPublic}
         setIsPublic={(isPublic) =>
           setFormData((prev) => ({ ...prev, isPublic }))
+        }
+        draftDate={formData.draftDate}
+        setDraftDate={(date) =>
+          setFormData((prev) => ({ ...prev, draftDate: date }))
         }
         tournaments={tournaments}
         isLoading={tournamentsLoading}

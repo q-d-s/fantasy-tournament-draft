@@ -5,6 +5,7 @@ export const createLeague = async (leagueData: LeagueFormInputs) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Authentication required");
 
+  // Create the league
   const { data: league, error: leagueError } = await supabase
     .from("leagues")
     .insert({
@@ -13,12 +14,14 @@ export const createLeague = async (leagueData: LeagueFormInputs) => {
       owner_id: user.id,
       max_players: leagueData.maxPlayers,
       is_public: leagueData.isPublic,
+      draft_date: leagueData.draftDate,
     })
     .select()
     .single();
 
   if (leagueError) throw leagueError;
 
+  // Add the creator as a league member
   const { error: memberError } = await supabase
     .from("league_members")
     .insert({
