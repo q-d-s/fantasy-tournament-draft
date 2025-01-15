@@ -29,15 +29,19 @@ export const useProfile = () => {
       if (data) {
         setProfile(data as Profile);
       } else {
-        // If no profile found, we'll create one
+        // If no profile found, we'll create one with the user's ID
+        const newProfileData = {
+          id: user.id, // Explicitly set the ID to match auth.uid()
+          username: user.email?.split('@')[0] || null,
+          email_notifications: false,
+          phone_notifications: false,
+          notification_preferences: { daily_recap: false, email_notifications: false },
+          created_at: new Date().toISOString()
+        };
+
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert([{ 
-            id: user.id,
-            username: user.email?.split('@')[0],
-            email_notifications: false,
-            phone_notifications: false
-          }])
+          .insert([newProfileData])
           .select()
           .single();
 
