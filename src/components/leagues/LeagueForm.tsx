@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { createLeague } from "@/services/leagueService";
 import { LeagueFormFields } from "./LeagueFormFields";
-import { useUpcomingTournaments } from "@/hooks/useLeagues";
+import { useUpcomingTournaments } from "@/hooks/useTournament";
 import type { LeagueFormInputs } from "@/types/leagues.types";
 
 interface LeagueFormProps {
