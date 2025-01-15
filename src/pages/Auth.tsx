@@ -1,16 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
+import { Alert } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (event === 'SIGNED_IN' && session) {
         navigate("/");
+      }
+      if (event === 'USER_UPDATED' && !session) {
+        setError("Invalid login credentials. Please try again.");
       }
     });
 
@@ -29,6 +34,11 @@ const Auth = () => {
           <h1 className="text-3xl font-khand text-primary">Welcome to TDL</h1>
           <p className="text-gray-600 mt-2">Sign in to join tournaments and leagues</p>
         </div>
+        {error && (
+          <Alert className="mb-4 bg-red-50 text-red-900 border border-red-200">
+            {error}
+          </Alert>
+        )}
         <SupabaseAuth 
           supabaseClient={supabase} 
           appearance={{ 
