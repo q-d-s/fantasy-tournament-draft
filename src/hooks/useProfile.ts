@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Profile, ProfileUpdate } from '@/types/database';
-import { useToast } from '@/components/ui/use-toast';
+import { Profile, ProfileUpdate } from '@/types/database/profile.types';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './useAuth';
 
 export const useProfile = () => {
@@ -15,6 +15,7 @@ export const useProfile = () => {
     try {
       if (!user) {
         setProfile(null);
+        setLoading(false);
         return;
       }
 
@@ -22,33 +23,13 @@ export const useProfile = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) throw profileError;
+      setProfile(data as Profile);
       
-      if (data) {
-        setProfile(data as Profile);
-      } else {
-        // If no profile found, we'll create one with the user's ID
-        const newProfileData = {
-          id: user.id, // Explicitly set the ID to match auth.uid()
-          username: user.email?.split('@')[0] || null,
-          email_notifications: false,
-          phone_notifications: false,
-          notification_preferences: { daily_recap: false, email_notifications: false },
-          created_at: new Date().toISOString()
-        };
-
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert([newProfileData])
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        if (newProfile) setProfile(newProfile as Profile);
-      }
     } catch (err) {
+      console.error('Error fetching profile:', err);
       setError(err as Error);
       toast({
         variant: "destructive",
@@ -73,20 +54,23 @@ export const useProfile = () => {
     try {
       if (!user) throw new Error('No user found');
 
-      const { error: updateError } = await supabase
+      const { error: updateError, data } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select()
+        .single();
 
       if (updateError) throw updateError;
       
-      setProfile(prev => prev ? { ...prev, ...updates } as Profile : null);
+      setProfile(data as Profile);
       
       toast({
         title: "Success",
         description: "Profile updated successfully.",
       });
     } catch (err) {
+      console.error('Error updating profile:', err);
       toast({
         variant: "destructive",
         title: "Error",
