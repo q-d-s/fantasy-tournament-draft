@@ -22,13 +22,31 @@ export const useProfile = () => {
         .from('profiles')
         .select('id, username, avatar_url, created_at')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setProfile(data as Profile);
+
+      if (!data) {
+        // If profile doesn't exist, create it
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.id,
+              username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`,
+            }
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        setProfile(newProfile as Profile);
+      } else {
+        setProfile(data as Profile);
+      }
       
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      console.error('Error fetching/creating profile:', err);
       toast({
         variant: "destructive",
         title: "Error",
