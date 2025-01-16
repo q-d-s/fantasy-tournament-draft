@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Auth = () => {
         navigate("/");
       }
       if (event === 'USER_UPDATED' && !session) {
-        setError("Invalid login credentials. Please try again.");
+        setError("Invalid login credentials");
       }
     });
 
@@ -31,12 +31,12 @@ const Auth = () => {
             alt="TDL Logo"
             className="w-24 h-24 mx-auto mb-4"
           />
-          <h1 className="text-3xl font-khand text-primary">Welcome to TDL</h1>
+          <h1 className="text-3xl font-khand text-[#153624]">Welcome to TDL</h1>
           <p className="text-gray-600 mt-2">Sign in to join tournaments and leagues</p>
         </div>
         {error && (
           <Alert className="mb-4 bg-red-50 text-red-900 border border-red-200">
-            {error}
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         <SupabaseAuth 

@@ -7,7 +7,6 @@ import { useAuth } from './useAuth';
 export const useProfile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -19,22 +18,21 @@ export const useProfile = () => {
         return;
       }
 
-      const { data, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, avatar_url, created_at')
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (error) throw error;
       setProfile(data as Profile);
       
     } catch (err) {
       console.error('Error fetching profile:', err);
-      setError(err as Error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load profile data. Please try refreshing the page.",
+        description: "Failed to load profile data",
       });
     } finally {
       setLoading(false);
@@ -67,14 +65,14 @@ export const useProfile = () => {
       
       toast({
         title: "Success",
-        description: "Profile updated successfully.",
+        description: "Profile updated successfully",
       });
     } catch (err) {
       console.error('Error updating profile:', err);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update profile.",
+        description: "Failed to update profile",
       });
       throw err;
     }
@@ -83,7 +81,6 @@ export const useProfile = () => {
   return {
     profile,
     loading,
-    error,
     updateProfile,
     refreshProfile: fetchProfile,
   };
