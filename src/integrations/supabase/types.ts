@@ -233,34 +233,19 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
-          default_avatar_icon: string | null
-          email_notifications: boolean | null
           id: string
-          notification_preferences: Json | null
-          phone: string | null
-          phone_notifications: boolean | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
-          default_avatar_icon?: string | null
-          email_notifications?: boolean | null
           id: string
-          notification_preferences?: Json | null
-          phone?: string | null
-          phone_notifications?: boolean | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
-          default_avatar_icon?: string | null
-          email_notifications?: boolean | null
           id?: string
-          notification_preferences?: Json | null
-          phone?: string | null
-          phone_notifications?: boolean | null
           username?: string | null
         }
         Relationships: []

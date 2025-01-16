@@ -7,23 +7,31 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check current session on mount
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const authUser: AuthUser = {
-          id: user.id,
-          email: user.email,
-          created_at: user.created_at,
-        };
-        setUser(authUser);
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const authUser: AuthUser = {
+            id: session.user.id,
+            email: session.user.email,
+            created_at: session.user.created_at,
+          };
+          setUser(authUser);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error getting session:', error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getUser();
 
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         const authUser: AuthUser = {
