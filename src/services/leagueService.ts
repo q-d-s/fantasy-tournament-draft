@@ -2,7 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { LeagueFormInputs } from "@/types/leagues.types";
 
 export const createLeague = async (leagueData: LeagueFormInputs) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
   if (!user) throw new Error("Authentication required");
 
   // Create the league
@@ -19,7 +20,10 @@ export const createLeague = async (leagueData: LeagueFormInputs) => {
     .select()
     .single();
 
-  if (leagueError) throw leagueError;
+  if (leagueError) {
+    console.error('League creation error:', leagueError);
+    throw new Error(leagueError.message);
+  }
 
   // Add the creator as a league member
   const { error: memberError } = await supabase
@@ -29,7 +33,10 @@ export const createLeague = async (leagueData: LeagueFormInputs) => {
       user_id: user.id,
     });
 
-  if (memberError) throw memberError;
+  if (memberError) {
+    console.error('League member creation error:', memberError);
+    throw memberError;
+  }
 
   return { data: league, error: null };
 };
@@ -40,6 +47,11 @@ export const fetchUpcomingTournaments = async () => {
     .select("*")
     .gte("start_date", new Date().toISOString())
     .order("start_date", { ascending: true });
+
+  if (error) {
+    console.error('Tournament fetch error:', error);
+    throw error;
+  }
 
   return { data, error };
 };

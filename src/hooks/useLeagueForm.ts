@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { createLeague } from "@/services/leagueService";
 import type { LeagueFormInputs } from "@/types/leagues.types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UseLeagueFormProps {
   onSuccess?: (leagueId: string) => void;
@@ -11,6 +12,7 @@ interface UseLeagueFormProps {
 export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<LeagueFormInputs>({
     name: "",
@@ -21,6 +23,15 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
   });
 
   const validateForm = () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to create a league.",
+      });
+      return false;
+    }
+
     if (!formData.tournamentId) {
       toast({
         variant: "destructive",
@@ -64,10 +75,11 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
         navigate(`/leagues/${league.id}`);
       }
     } catch (error: any) {
+      console.error('League creation error:', error);
       toast({
         variant: "destructive",
         title: "Error creating league",
-        description: error.message,
+        description: error.message || "Failed to create league. Please try again.",
       });
     } finally {
       setLoading(false);
