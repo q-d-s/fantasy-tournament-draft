@@ -1,4 +1,4 @@
-import { Json } from "./auth.types";
+import { Json } from "./common.types";
 
 export interface DraftPick {
   id: string;
