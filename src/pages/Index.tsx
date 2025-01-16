@@ -6,8 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Trophy, Users } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleCreateLeague = () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create a league",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+    navigate("/leagues/create");
+  };
+
   const { data: tournaments, isLoading: tournamentsLoading } = useQuery({
     queryKey: ['tournaments'],
     queryFn: async () => {
@@ -49,7 +69,6 @@ const Index = () => {
           <h1 className="text-5xl font-khand text-[#153624] mb-4">Tournament Draft League</h1>
           <p className="text-xl text-gray-600 font-khand mb-8">Pioneers of Fantasy Drafts</p>
           
-          {/* Welcome Message */}
           <div className="max-w-3xl text-center mb-12">
             <p className="text-lg text-gray-700 mb-4">
               Welcome to Tournament Draft League, where the thrill of fantasy sports meets the excitement of real-world tournaments! 
@@ -59,8 +78,12 @@ const Index = () => {
               <Button asChild className="bg-[#153624] text-white hover:bg-[#153624]/90">
                 <Link to="/instructions">Learn How to Play</Link>
               </Button>
-              <Button asChild variant="outline" className="border-[#153624] text-[#153624] hover:bg-[#153624]/10">
-                <Link to="/leagues/create">Create a League</Link>
+              <Button 
+                variant="outline" 
+                className="border-[#153624] text-[#153624] hover:bg-[#153624]/10"
+                onClick={handleCreateLeague}
+              >
+                Create a League
               </Button>
             </div>
           </div>
@@ -93,8 +116,23 @@ const Index = () => {
                       <span>Create or join a league now!</span>
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <Button asChild variant="default" className="flex-1 bg-[#153624] hover:bg-[#153624]/90">
-                        <Link to={`/leagues/create?tournament=${tournament.id}`}>Create League</Link>
+                      <Button 
+                        variant="default" 
+                        className="flex-1 bg-[#153624] hover:bg-[#153624]/90"
+                        onClick={() => {
+                          if (!user) {
+                            toast({
+                              title: "Authentication Required",
+                              description: "Please log in to create a league",
+                              variant: "destructive",
+                            });
+                            navigate("/auth");
+                            return;
+                          }
+                          navigate(`/leagues/create?tournament=${tournament.id}`);
+                        }}
+                      >
+                        Create League
                       </Button>
                       <Button asChild variant="outline" className="flex-1 border-[#153624] text-[#153624] hover:bg-[#153624]/10">
                         <Link to="/leagues">Find Leagues</Link>
