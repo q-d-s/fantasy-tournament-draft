@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { createLeague } from "@/services/leagueService";
-import type { LeagueFormInputs } from "@/types/leagues.types";
+import { LeagueFormInputs } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 
 interface UseLeagueFormProps {
@@ -20,14 +21,28 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
     maxPlayers: 10,
     isPublic: false,
     draftDate: new Date().toISOString().split('T')[0],
+    draftTime: "",
   });
 
-  const validateForm = () => {
+  const handleInputChange = (field: keyof LeagueFormInputs, value: string | number | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const validateForm = (): boolean => {
     if (!user) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Authentication Required",
         description: "You must be logged in to create a league.",
+      });
+      return false;
+    }
+
+    if (!formData.name.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please enter a league name.",
       });
       return false;
     }
@@ -35,7 +50,7 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
     if (!formData.tournamentId) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Missing Information",
         description: "Please select a tournament.",
       });
       return false;
@@ -44,7 +59,7 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
     if (!formData.draftDate) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Missing Information",
         description: "Please select a draft date.",
       });
       return false;
@@ -61,6 +76,7 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
     try {
       const { data: league, error } = await createLeague(formData);
       if (error) throw error;
+      if (!league) throw new Error("Failed to create league");
 
       toast({
         title: "League created successfully!",
@@ -69,9 +85,9 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
           : "Share your league's invite link to add members.",
       });
 
-      if (onSuccess && league) {
+      if (onSuccess) {
         onSuccess(league.id);
-      } else if (league) {
+      } else {
         navigate(`/leagues/${league.id}`);
       }
     } catch (error: any) {
@@ -88,7 +104,7 @@ export const useLeagueForm = ({ onSuccess }: UseLeagueFormProps = {}) => {
 
   return {
     formData,
-    setFormData,
+    handleInputChange,
     loading,
     handleSubmit,
   };

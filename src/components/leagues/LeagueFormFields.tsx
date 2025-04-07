@@ -1,51 +1,58 @@
-import type { Tournament } from "@/types/leagues.types";
+
+import { Tournament, LeagueFormInputs } from "@/types";
 import { NameField } from "./form-fields/NameField";
 import { TournamentField } from "./form-fields/TournamentField";
 import { DraftDateField } from "./form-fields/DraftDateField";
+import { DraftTimeField } from "./form-fields/DraftTimeField";
 import { MaxPlayersField } from "./form-fields/MaxPlayersField";
 import { VisibilityField } from "./form-fields/VisibilityField";
 
 interface LeagueFormFieldsProps {
-  name: string;
-  setName: (name: string) => void;
-  tournamentId: string;
-  setTournamentId: (id: string) => void;
-  maxPlayers: number;
-  setMaxPlayers: (players: number) => void;
-  isPublic: boolean;
-  setIsPublic: (isPublic: boolean) => void;
-  draftDate: string;
-  setDraftDate: (date: string) => void;
+  formData: LeagueFormInputs;
+  handleInputChange: (field: keyof LeagueFormInputs, value: string | number | boolean) => void;
   tournaments?: Tournament[];
   isLoading?: boolean;
 }
 
 export const LeagueFormFields = ({
-  name,
-  setName,
-  tournamentId,
-  setTournamentId,
-  maxPlayers,
-  setMaxPlayers,
-  isPublic,
-  setIsPublic,
-  draftDate,
-  setDraftDate,
+  formData,
+  handleInputChange,
   tournaments,
   isLoading,
 }: LeagueFormFieldsProps) => {
   return (
     <div className="space-y-6">
-      <NameField name={name} setName={setName} />
+      <NameField 
+        name={formData.name} 
+        setName={(value) => handleInputChange('name', value)} 
+      />
+      
       <TournamentField
-        tournamentId={tournamentId}
-        setTournamentId={setTournamentId}
+        tournamentId={formData.tournamentId}
+        setTournamentId={(value) => handleInputChange('tournamentId', value)}
         tournaments={tournaments}
         isLoading={isLoading}
       />
-      <DraftDateField draftDate={draftDate} setDraftDate={setDraftDate} />
-      <MaxPlayersField maxPlayers={maxPlayers} setMaxPlayers={setMaxPlayers} />
-      <VisibilityField isPublic={isPublic} setIsPublic={setIsPublic} />
+      
+      <DraftDateField 
+        draftDate={formData.draftDate} 
+        setDraftDate={(value) => handleInputChange('draftDate', value)} 
+      />
+      
+      <DraftTimeField 
+        draftTime={formData.draftTime || ""} 
+        setDraftTime={(value) => handleInputChange('draftTime', value)} 
+      />
+      
+      <MaxPlayersField 
+        maxPlayers={formData.maxPlayers} 
+        setMaxPlayers={(value) => handleInputChange('maxPlayers', value)} 
+      />
+      
+      <VisibilityField 
+        isPublic={formData.isPublic} 
+        setIsPublic={(value) => handleInputChange('isPublic', value)} 
+      />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -6,16 +7,24 @@ import { LeagueForm } from "@/components/leagues/LeagueForm";
 import { useAuth } from "@/hooks/useAuth";
 
 const CreateLeague = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       navigate("/auth");
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
-  if (!user) return null;
+  // Don't render anything while checking authentication
+  if (loading) {
+    return null;
+  }
+
+  // Don't render the page content if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
