@@ -1,12 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tournament, TournamentWithTeams } from "@/types/database/tournament.types";
+import { Tournament } from "@/types";
 
 export const useTournament = (tournamentId: string | undefined) => {
   return useQuery({
     queryKey: ['tournament', tournamentId],
-    queryFn: async (): Promise<TournamentWithTeams | null> => {
+    queryFn: async (): Promise<Tournament | null> => {
       if (!tournamentId) return null;
 
       // Fetch tournament with its teams
@@ -26,7 +26,16 @@ export const useTournament = (tournamentId: string | undefined) => {
       if (tournamentError) throw tournamentError;
       if (!tournament) return null;
 
-      return tournament as TournamentWithTeams;
+      // Transform database tournament to app Tournament type
+      return {
+        id: tournament.id,
+        name: tournament.name,
+        start_date: tournament.start_date,
+        end_date: tournament.end_date,
+        type: tournament.type as any,
+        metadata: tournament.metadata || {},
+        teams: tournament.teams || []
+      } as unknown as Tournament;
     },
     enabled: !!tournamentId,
   });
@@ -52,7 +61,17 @@ export const useUpcomingTournaments = () => {
         .order('start_date', { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      
+      // Transform database tournaments to app Tournament type
+      return (data || []).map(tournament => ({
+        id: tournament.id,
+        name: tournament.name,
+        start_date: tournament.start_date,
+        end_date: tournament.end_date,
+        type: tournament.type as any,
+        metadata: tournament.metadata || {},
+        teams: tournament.teams || []
+      })) as unknown as Tournament[];
     },
   });
 };

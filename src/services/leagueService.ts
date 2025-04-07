@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { League, LeagueFormInputs, ServiceResponse } from "@/types";
-import { Tournament } from "@/types/database/tournament.types";
+import { League, LeagueFormInputs, ServiceResponse, Tournament } from "@/types";
 
 /**
  * Creates a new league and adds the creator as the first member
@@ -70,8 +69,15 @@ export const fetchUpcomingTournaments = async (): Promise<ServiceResponse<Tourna
 
     if (error) throw error;
     
-    // Ensure the data is properly typed
-    const typedTournaments = data as Tournament[];
+    // Transform the data to match our Tournament type
+    const typedTournaments = (data || []).map(tournament => ({
+      id: tournament.id,
+      name: tournament.name,
+      start_date: tournament.start_date,
+      end_date: tournament.end_date,
+      type: tournament.type as any,
+      metadata: tournament.metadata || {},
+    })) as Tournament[];
     
     return { data: typedTournaments, error: null };
   } catch (error: any) {

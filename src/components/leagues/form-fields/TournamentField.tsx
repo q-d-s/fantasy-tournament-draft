@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Tournament } from "@/types/database/tournament.types";
+import { Tournament } from "@/types";
 
 interface TournamentFieldProps {
   tournamentId: string;
