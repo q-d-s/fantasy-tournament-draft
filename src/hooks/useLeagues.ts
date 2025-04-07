@@ -1,6 +1,8 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { League } from "@/types/leagues.types";
+import type { League } from "@/types";
+import type { Tournament } from "@/types/database/tournament.types";
 
 export const usePublicLeagues = () => {
   return useQuery({
@@ -36,7 +38,8 @@ export const usePublicLeagues = () => {
         ...league,
         tournament: league.tournament?.[0] || null,
         owner: { username: usernameMap.get(league.owner_id) || null },
-        member_count: league.member_count || []
+        member_count: league.member_count || [],
+        settings: league.settings as Record<string, any> || {}
       }));
 
       return leagues as League[];
@@ -57,7 +60,7 @@ export const useUpcomingTournaments = () => {
         .order("start_date", { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      return data as Tournament[] || [];
     },
   });
 };

@@ -1,6 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { League, LeagueFormInputs, ServiceResponse, Tournament } from "@/types";
+import { League, LeagueFormInputs, ServiceResponse } from "@/types";
+import { Tournament } from "@/types/database/tournament.types";
+import { Json } from "@/integrations/supabase/types";
 
 /**
  * Creates a new league and adds the creator as the first member
@@ -42,7 +44,13 @@ export const createLeague = async (leagueData: LeagueFormInputs): Promise<Servic
 
     if (memberError) throw memberError;
 
-    return { data: league, error: null };
+    // Convert Json type to Record<string, any>
+    const typedLeague: League = {
+      ...league,
+      settings: league.settings as Record<string, any> || {}
+    };
+
+    return { data: typedLeague, error: null };
   } catch (error: any) {
     console.error('League creation error:', error);
     return { data: null, error: error instanceof Error ? error : new Error(error.message || 'Unknown error') };
@@ -61,7 +69,11 @@ export const fetchUpcomingTournaments = async (): Promise<ServiceResponse<Tourna
       .order("start_date", { ascending: true });
 
     if (error) throw error;
-    return { data, error: null };
+    
+    // Ensure the data is properly typed
+    const typedTournaments = data as Tournament[];
+    
+    return { data: typedTournaments, error: null };
   } catch (error: any) {
     console.error('Tournament fetch error:', error);
     return { data: null, error: error instanceof Error ? error : new Error(error.message || 'Unknown error') };

@@ -1,3 +1,4 @@
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -6,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Tournament } from "@/types/leagues.types";
+import type { Tournament } from "@/types/database/tournament.types";
 
 interface TournamentFieldProps {
   tournamentId: string;

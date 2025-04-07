@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useUpcomingTournaments } from "@/hooks/useTournament";
 import { useLeagueForm } from "@/hooks/useLeagueForm";
 import { LeagueFormFields } from "./LeagueFormFields";
+import { Tournament } from "@/types/database/tournament.types";
 
 export const LeagueForm = () => {
   const { data: tournaments, isLoading: tournamentsLoading } = useUpcomingTournaments();
@@ -18,7 +19,7 @@ export const LeagueForm = () => {
       <LeagueFormFields 
         formData={formData}
         handleInputChange={handleInputChange}
-        tournaments={tournaments}
+        tournaments={tournaments as Tournament[]}
         isLoading={tournamentsLoading}
       />
 
