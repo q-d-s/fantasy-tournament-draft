@@ -19,7 +19,7 @@ export const LeagueForm = () => {
       <LeagueFormFields 
         formData={formData}
         handleInputChange={handleInputChange}
-        tournaments={tournaments as Tournament[]}
+        tournaments={tournaments as Tournament[] || []}
         isLoading={tournamentsLoading}
       />
 

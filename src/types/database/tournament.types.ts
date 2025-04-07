@@ -1,3 +1,4 @@
+
 import { Database } from "@/integrations/supabase/types";
 
 export type TournamentMetadata = {
@@ -7,7 +8,13 @@ export type TournamentMetadata = {
   max_rounds?: number;
 };
 
-export type Tournament = Database["public"]["Tables"]["tournaments"]["Row"] & {
+export type Tournament = {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  type: string;
+  created_at?: string;
   metadata?: TournamentMetadata;
   teams?: Array<{
     id: string;

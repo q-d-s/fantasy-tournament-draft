@@ -1,6 +1,20 @@
-import { Database } from "@/integrations/supabase/types";
 
-export type League = Database["public"]["Tables"]["leagues"]["Row"] & {
+/**
+ * Type definitions for league-related data
+ */
+
+export interface League {
+  id: string;
+  name: string;
+  tournament_id: string;
+  owner_id: string;
+  max_players: number;
+  is_public: boolean;
+  created_at: string;
+  draft_date?: string | null;
+  invite_code?: string;
+  logo_url?: string | null;
+  settings?: Record<string, any>;
   tournament?: {
     name: string;
     start_date: string;
@@ -10,20 +24,17 @@ export type League = Database["public"]["Tables"]["leagues"]["Row"] & {
     username: string | null;
   } | null;
   member_count?: Array<{ count: number }>;
-};
+}
 
-export type LeagueFormInputs = {
+export interface LeagueFormData {
   name: string;
   tournamentId: string;
   maxPlayers: number;
   isPublic: boolean;
-  draftDate: string;
-};
+}
 
-export type Tournament = {
-  id: string;
-  name: string;
-  start_date: string;
-  end_date: string;
-  type: string;
-};
+export interface LeagueMember {
+  league_id: string;
+  user_id: string;
+  joined_at: string;
+}

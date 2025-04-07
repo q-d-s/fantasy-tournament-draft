@@ -2,7 +2,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { League, LeagueFormInputs, ServiceResponse } from "@/types";
 import { Tournament } from "@/types/database/tournament.types";
-import { Json } from "@/integrations/supabase/types";
 
 /**
  * Creates a new league and adds the creator as the first member
@@ -33,6 +32,7 @@ export const createLeague = async (leagueData: LeagueFormInputs): Promise<Servic
       .single();
 
     if (leagueError) throw leagueError;
+    if (!league) throw new Error("Failed to create league");
 
     // Add the creator as a league member
     const { error: memberError } = await supabase

@@ -1,8 +1,9 @@
+
 /**
  * Utility functions for league-related operations
  */
 
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -36,6 +37,7 @@ export const createLeague = async (
       .single();
 
     if (leagueError) throw leagueError;
+    if (!league) throw new Error("Failed to create league");
 
     // Add creator as league member
     const { error: memberError } = await supabase

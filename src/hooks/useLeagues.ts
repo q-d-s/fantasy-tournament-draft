@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { League } from "@/types";
-import type { Tournament } from "@/types/database/tournament.types";
 
 export const usePublicLeagues = () => {
   return useQuery({
@@ -23,6 +22,9 @@ export const usePublicLeagues = () => {
 
       // Fetch usernames separately since we can't directly join auth.users
       const ownerIds = (data || []).map(league => league.owner_id);
+      
+      if (ownerIds.length === 0) return [];
+      
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, username")
@@ -43,24 +45,6 @@ export const usePublicLeagues = () => {
       }));
 
       return leagues as League[];
-    },
-  });
-};
-
-export const useUpcomingTournaments = () => {
-  return useQuery({
-    queryKey: ["tournaments"],
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      
-      const { data, error } = await supabase
-        .from("tournaments")
-        .select("*")
-        .gte("start_date", today)
-        .order("start_date", { ascending: true });
-
-      if (error) throw error;
-      return data as Tournament[] || [];
     },
   });
 };
